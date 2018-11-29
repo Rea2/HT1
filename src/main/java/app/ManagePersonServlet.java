@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 
-@SuppressWarnings("unused")
+
 public class ManagePersonServlet extends HttpServlet {
 	
 	// Идентификатор для сериализации/десериализации.
@@ -81,6 +81,8 @@ public class ManagePersonServlet extends HttpServlet {
 
 		// Диспетчеры для передачи управления на разные JSP (разные представления (view)).
 		RequestDispatcher dispatcher_for_manager = request.getRequestDispatcher("/ManagePerson.jsp");
+		RequestDispatcher dispatcher_for_manager_add = request.getRequestDispatcher("/ManagePerson_add.jsp");
+
         RequestDispatcher dispatcher_for_list = request.getRequestDispatcher("/List.jsp");
 
 		// Действие (action) и идентификатор записи (id) над которой выполняется это действие.
@@ -114,7 +116,7 @@ public class ManagePersonServlet extends HttpServlet {
         			request.setAttribute("jsp_parameters", jsp_parameters);
         			
         			// Передача запроса в JSP.
-        			dispatcher_for_manager.forward(request, response);
+        			dispatcher_for_manager_add.forward(request, response);
         		break;
 			
         		// Редактирование записи.
@@ -177,7 +179,8 @@ public class ManagePersonServlet extends HttpServlet {
 		HashMap<String,String> jsp_parameters = new HashMap<String,String>();
 
 		// Диспетчеры для передачи управления на разные JSP (разные представления (view)).
-		RequestDispatcher dispatcher_for_manager = request.getRequestDispatcher("/ManagePerson.jsp");
+		RequestDispatcher dispatcher_for_manager = request.getRequestDispatcher("/ManagePerson.jsp");	
+		
 		RequestDispatcher dispatcher_for_list = request.getRequestDispatcher("/List.jsp");
 		
 		

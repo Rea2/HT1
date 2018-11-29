@@ -3,6 +3,7 @@ package app;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -78,6 +79,14 @@ public class Person {
 	    	return matcher.matches();
 	    }
 	    
+	}
+	
+	public String getPhonesToString() {
+		StringBuilder sb= new StringBuilder();
+		for(Map.Entry<String,String> entry : phones.entrySet()) {
+			sb.append(entry.getValue()).append("\n");
+		}
+		return sb.toString();
 	}
 	
 	// ++++++++++++++++++++++++++++++++++++++

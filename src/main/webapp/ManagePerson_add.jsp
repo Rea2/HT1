@@ -14,8 +14,7 @@
 <%
 	HashMap<String,String> jsp_parameters = new HashMap<String,String>();
 	Person person = new Person();
-	String error_message = "";	
-	
+	String error_message = "";
 
 	if (request.getAttribute("jsp_parameters") != null)
 	{
@@ -57,21 +56,7 @@
     <tr>
         <td>Отчество:</td>
         <td><input type="text" name="middlename" value="<%=person.getMiddlename()%>"/></td>
-    </tr>
-    <tr>
-        <td>Телефоны:</td>
-        <td>
-        <%
-          for(String phone : person.getPhones().values())
-           {
-         	out.write(phone);%>   	
-            <a href="<%=request.getContextPath()%>/">Редактировать</a>
-            <a href="<%=request.getContextPath()%>/">Удалить</a>
-         	<br />
-         <%}; %>        
-            <a href="<%=request.getContextPath()%>/">Добавить</a>   
-         </td>
-   </tr>   
+    </tr>   
     <tr>
         <td colspan="2" align="center">
          <input type="submit" name="<%=jsp_parameters.get("next_action")%>" value="<%=jsp_parameters.get("next_action_label")%>" />
