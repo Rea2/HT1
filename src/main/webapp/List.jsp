@@ -51,7 +51,7 @@
         <td align="center">&nbsp;</td>
     </tr>
     
-        <%
+        <%  
         for (Person person : phonebook.getContents().values()) {
             
         %>

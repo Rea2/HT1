@@ -70,6 +70,30 @@ public class Phonebook {
 			return false;
 		}
 	}
+	
+	// Добавление в запись о человека новый номер телефона.
+	public boolean addPhone(Person person, String phone )
+	{
+		ResultSet db_result;
+		String query;	
+		if (!persons.containsValue(person)) return false;		
+		query = "INSERT INTO `phones` (`owner`, `number`) VALUES ('" + person.getId() +"', '" + phone +"')";
+		
+		Integer affected_rows = this.db.changeDBData(query);		
+		
+		// Если добавление прошло успешно...
+		if (affected_rows > 0)
+		{
+			// Добавляем запись о человеке в общий список.						
+			person.getPhones().put(this.db.getLastInsertId().toString(), phone);		
+			
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
 
 	
 	// Обновление записи о человеке.
@@ -102,8 +126,38 @@ public class Phonebook {
 			return false;
 		}
 	}
+	/**
+	public boolean updatePhone(String id, Person person)
+	{
+		Integer id_filtered = Integer.parseInt(person.getId());
+		Integer id_phone_filtered = Integer.parseInt(person.getId());		
+		String query = "";
 
-	
+		
+		
+			query = "UPDATE `phone` SET `name` = '" + person.getName() + "', `surname` = '" + person.getSurname() + "', `middlename` = '" + person.getMiddlename() + "' WHERE `id` = " + id_filtered;
+		}
+		else
+		{
+			query = "UPDATE `person` SET `name` = '" + person.getName() + "', `surname` = '" + person.getSurname() + "' WHERE `id` = " + id_filtered;
+		}
+
+		Integer affected_rows = this.db.changeDBData(query);
+		
+		// Если обновление прошло успешно...
+		if (affected_rows > 0)
+		{
+			// Обновляем запись о человеке в общем списке.
+			this.persons.put(person.getId(), person);
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	*/
 	// Удаление записи о человеке.
 	public boolean deletePerson(String id)
 	{
@@ -130,6 +184,36 @@ public class Phonebook {
 			return false;
 		}
 	}
+	
+	public boolean deletePhone(String id, String id_phone)
+	{
+		if ((id != null)&&(!id.equals("null"))&& (id_phone != null)&&(!id_phone.equals("null")))
+		{
+			int filtered_id = Integer.parseInt(id);
+			int filtered_id_phone = Integer.parseInt(id_phone);
+			
+			Integer affected_rows = this.db.changeDBData("DELETE FROM `phone` WHERE `id`=" + filtered_id_phone);
+		
+			// Если удаление прошло успешно...
+			if (affected_rows > 0)
+			{
+				// Удаляем запись о человеке из общего списка.
+				this.persons.get(id).getPhones().remove(id_phone);
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else
+		{
+			return false;
+		}
+	}
+	
+	
+	
 
 	// +++++++++++++++++++++++++++++++++++++++++
 	// Геттеры и сеттеры

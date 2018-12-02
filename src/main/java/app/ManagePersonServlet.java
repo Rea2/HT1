@@ -3,6 +3,8 @@ package app;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -65,6 +67,21 @@ public class ManagePersonServlet extends HttpServlet {
 		return error_message;
     }
     
+    private String validatePhoneNumber (String phone)
+    {
+		String error_message = "Телефонный номер должен иметь  от 2 до 50 символов: цифры, и знаки +, -, #.<br />";
+		  if (phone == null) 
+		  {
+		  return error_message;
+		  }	   		    
+	    Matcher matcher = Pattern.compile("[\\d+-#]{2,50}").matcher(phone);
+	    if(matcher.matches()) 
+	    {
+	    return "";
+	    }
+	    else return error_message;    
+	 }
+    
     // Реакция на GET-запросы.
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
 	{
@@ -82,16 +99,18 @@ public class ManagePersonServlet extends HttpServlet {
 		// Диспетчеры для передачи управления на разные JSP (разные представления (view)).
 		RequestDispatcher dispatcher_for_manager = request.getRequestDispatcher("/ManagePerson.jsp");
 		RequestDispatcher dispatcher_for_manager_add = request.getRequestDispatcher("/ManagePerson_add.jsp");
-
         RequestDispatcher dispatcher_for_list = request.getRequestDispatcher("/List.jsp");
+        RequestDispatcher dispatcher_for_phoneeditor = request.getRequestDispatcher("/PhoneEditor.jsp");
 
 		// Действие (action) и идентификатор записи (id) над которой выполняется это действие.
 		String action = request.getParameter("action");
 		String id = request.getParameter("id");
+		String id_phone = request.getParameter("id_phone");
+		
 		
 		// Если идентификатор и действие не указаны, мы находимся в состоянии
 		// "просто показать список и больше ничего не делать".
-        if ((action == null)&&(id == null))
+        if ((action == null)&&(id == null)&&(id_phone == null))
         {
         	request.setAttribute("jsp_parameters", jsp_parameters);
             dispatcher_for_list.forward(request, response);
@@ -118,6 +137,24 @@ public class ManagePersonServlet extends HttpServlet {
         			// Передача запроса в JSP.
         			dispatcher_for_manager_add.forward(request, response);
         		break;
+        		case "add_phone":
+        			// Получение пользователя:
+        			Person person = this.phonebook.getPerson(id);
+        			
+        			// Подготовка параметров для JSP.
+        			jsp_parameters.put("current_action", "add_phone");
+        			jsp_parameters.put("next_action", "add_phone_go");
+        			jsp_parameters.put("next_action_label", "Добавить");
+        			
+        			// Установка параметров JSP.
+        			request.setAttribute("person", person);
+        			request.setAttribute("id_phone", ""); 
+        			request.setAttribute("jsp_parameters", jsp_parameters);
+        			
+        			// Передача запроса в JSP.
+        			dispatcher_for_phoneeditor.forward(request, response);
+        		break;
+			
 			
         		// Редактирование записи.
         		case "edit":
@@ -136,7 +173,25 @@ public class ManagePersonServlet extends HttpServlet {
         			// Передача запроса в JSP.
         			dispatcher_for_manager.forward(request, response);
         		break;
-			
+ /**       		case "edit_phone":
+        			// Извлечение из телефонной книги информации о редактируемой записи.
+        			Person person = this.phonebook.getPerson(id);
+        			String editable_phone = this.phonebook.getPerson(id).getPhones().get(id_phone);
+        			
+        			// Подготовка параметров для JSP.
+        			jsp_parameters.put("current_action", "edit_phone");
+        			jsp_parameters.put("next_action", "edit_phone_go");
+        			jsp_parameters.put("next_action_label", "Сохранить");
+
+        			// Установка параметров JSP.
+        			request.setAttribute("id_phone", id_phone);
+        			request.setAttribute("person", person);
+        			request.setAttribute("jsp_parameters", jsp_parameters);
+        			
+        			// Передача запроса в JSP.
+        			dispatcher_for_phoneeditor.forward(request, response);
+        		break;
+*/			
         		// Удаление записи.
         		case "delete":
         			
@@ -156,8 +211,32 @@ public class ManagePersonServlet extends HttpServlet {
         			// Установка параметров JSP.
         			request.setAttribute("jsp_parameters", jsp_parameters);
         			
+        			
         			// Передача запроса в JSP.
         			dispatcher_for_list.forward(request, response);
+       			break;
+       		  // Удаление телефона.
+    			case "delete_phone":
+        			
+        			// Если запись удалось удалить...
+        			if (phonebook.deletePhone(id, id_phone))
+        			{
+        				jsp_parameters.put("current_action_result", "DELETION_SUCCESS");
+        				jsp_parameters.put("current_action_result_label", "Удаление выполнено успешно");
+        			}
+        			// Если запись не удалось удалить (например, такой записи нет)...
+        			else
+        			{
+        				jsp_parameters.put("current_action_result", "DELETION_FAILURE");
+        				jsp_parameters.put("current_action_result_label", "Ошибка удаления (возможно, запись не найдена)");
+        			}
+
+        			// Установка параметров JSP.
+        			request.setAttribute("jsp_parameters", jsp_parameters);
+        			request.setAttribute("person", phonebook.getPerson(id));
+        			
+        			// Передача запроса в JSP.
+        			dispatcher_for_manager.forward(request, response);
        			break;
        		}
         }
@@ -179,15 +258,20 @@ public class ManagePersonServlet extends HttpServlet {
 		HashMap<String,String> jsp_parameters = new HashMap<String,String>();
 
 		// Диспетчеры для передачи управления на разные JSP (разные представления (view)).
-		RequestDispatcher dispatcher_for_manager = request.getRequestDispatcher("/ManagePerson.jsp");	
-		
+		RequestDispatcher dispatcher_for_manager = request.getRequestDispatcher("/ManagePerson.jsp");		
 		RequestDispatcher dispatcher_for_list = request.getRequestDispatcher("/List.jsp");
 		
 		
 		// Действие (add_go, edit_go) и идентификатор записи (id) над которой выполняется это действие.
 		String add_go = request.getParameter("add_go");
 		String edit_go = request.getParameter("edit_go");
+		String add_phone_go = request.getParameter("add_phone_go");
+		String edit_phone_go = request.getParameter("edit_phone_go");
 		String id = request.getParameter("id");
+		String id_phone = request.getParameter("id_phone");
+	
+		
+		
 		
 		// Добавление записи.
 		if (add_go != null)
@@ -237,6 +321,54 @@ public class ManagePersonServlet extends HttpServlet {
     			// Передача запроса в JSP.
     			dispatcher_for_manager.forward(request, response);
 			}
+		}		
+		// Добавление записи.
+		if (add_phone_go != null)
+		{
+			// Создание записи на основе данных из формы.
+			Person editable_person = this.phonebook.getPerson(id);
+				
+			// Валидация ФИО.
+			String error_message = this.validatePhoneNumber(editable_person.getPhones().get(id_phone)); 			
+			// Если данные верные, можно производить добавление.
+			if (error_message.equals(""))
+			{
+				// Если запись удалось добавить...
+				if (this.phonebook.addPhone(editable_person, request.getParameter(id_phone)))
+				{
+					jsp_parameters.put("current_action_result", "ADDITION_SUCCESS");
+					jsp_parameters.put("current_action_result_label", "Добавление выполнено успешно");
+				}
+				// Если запись НЕ удалось добавить...
+				else
+				{
+					jsp_parameters.put("current_action_result", "ADDITION_FAILURE");
+					jsp_parameters.put("current_action_result_label", "Ошибка добавления");
+				}
+
+				// Установка параметров JSP.
+				request.setAttribute("id_phone", id_phone);
+				request.setAttribute("jsp_parameters", jsp_parameters);
+	        
+				// Передача запроса в JSP.
+				dispatcher_for_manager.forward(request, response);
+			}
+			// Если в данных были ошибки, надо заново показать форму и сообщить об ошибках.
+			else
+			{
+    			// Подготовка параметров для JSP.
+    			jsp_parameters.put("current_action", "add");
+    			jsp_parameters.put("next_action", "add_go");
+    			jsp_parameters.put("next_action_label", "Добавить");
+    			jsp_parameters.put("error_message", error_message);
+    			
+    			// Установка параметров JSP.
+    			request.setAttribute("person", editable_person);
+    			request.setAttribute("jsp_parameters", jsp_parameters);
+    			
+    			// Передача запроса в JSP.
+    			dispatcher_for_manager.forward(request, response);
+			}
 		}
 		
 		// Редактирование записи.
@@ -263,7 +395,7 @@ public class ManagePersonServlet extends HttpServlet {
 				}
 				// Если запись НЕ удалось обновить...
 				else
-				{
+				{ 
 					jsp_parameters.put("current_action_result", "UPDATE_FAILURE");
 					jsp_parameters.put("current_action_result_label", "Ошибка обновления");
 				}
@@ -293,5 +425,62 @@ public class ManagePersonServlet extends HttpServlet {
     			
 			}
 		}
-	}
+		
+		// Редактирование телефонной записи.
+/**			if (edit_phone_go != null)
+				{
+					// Получение записи и её обновление на основе данных из формы.
+					Person updatable_person = this.phonebook.getPerson(request.getParameter("id")); 
+					String updatable_number = updatable_person.getPhones().get(request.getParameter("id_phone")); 
+					
+
+					// Валидация телефона.
+					String error_message = this.validatePhoneNumber  (updatable_number); 
+					
+					if (error_message.equals(""))
+					{
+					
+						// Если запись удалось обновить...
+						if (this.phonebook.updatePhone(updatable_person, request.getParameter("id_phone")))
+						{
+							jsp_parameters.put("current_action_result", "UPDATE_SUCCESS");
+							jsp_parameters.put("current_action_result_label", "Обновление выполнено успешно");
+						}
+						// Если запись НЕ удалось обновить...
+						else
+						{ 
+							jsp_parameters.put("current_action_result", "UPDATE_FAILURE");
+							jsp_parameters.put("current_action_result_label", "Ошибка обновления");
+						}
+
+						// Установка параметров JSP.
+						request.setAttribute("jsp_parameters", jsp_parameters);
+			        
+						// Передача запроса в JSP.
+						dispatcher_for_list.forward(request, response);
+					}
+					// Если в данных были ошибки, надо заново показать форму и сообщить об ошибках.
+					else
+					{
+
+		    			// Подготовка параметров для JSP.
+		    			jsp_parameters.put("current_action", "edit");
+		    			jsp_parameters.put("next_action", "edit_go");
+		    			jsp_parameters.put("next_action_label", "Сохранить");
+		    			jsp_parameters.put("error_message", error_message);
+
+		    			// Установка параметров JSP.
+		    			request.setAttribute("person", updatable_person);
+		    			request.setAttribute("jsp_parameters", jsp_parameters);
+		    			
+		    			// Передача запроса в JSP.
+		    			dispatcher_for_manager.forward(request, response);    			
+		    			
+					}
+					
+					
+				}
+*/	
+
+}
 }

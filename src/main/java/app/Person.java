@@ -81,6 +81,18 @@ public class Person {
 	    
 	}
 	
+	public boolean validatePhone (String phone)
+	{
+	    if (phone == null) 
+	    {
+	    	return false;
+		}
+	    
+	    Matcher matcher = Pattern.compile("[\\d+-#]{2,50}").matcher(phone);
+	    return matcher.matches(); 
+	}
+	
+	
 	public String getPhonesToString() {
 		StringBuilder sb= new StringBuilder();
 		for(Map.Entry<String,String> entry : phones.entrySet()) {
