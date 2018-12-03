@@ -74,16 +74,18 @@ public class Phonebook {
 	// Добавление в запись о человека новый номер телефона.
 	public boolean addPhone(Person person, String phone )
 	{
+System.out.println("Adding phone is " + phone);		
 		ResultSet db_result;
 		String query;	
 		if (!persons.containsValue(person)) return false;		
-		query = "INSERT INTO `phones` (`owner`, `number`) VALUES ('" + person.getId() +"', '" + phone +"')";
+		query = "INSERT INTO `phone` (`owner`, `number`) VALUES ('" + person.getId() +"', '" + phone +"')";
 		
 		Integer affected_rows = this.db.changeDBData(query);		
 		
 		// Если добавление прошло успешно...
 		if (affected_rows > 0)
 		{
+System.out.println(this.db.getLastInsertId().toString());
 			// Добавляем запись о человеке в общий список.						
 			person.getPhones().put(this.db.getLastInsertId().toString(), phone);		
 			
@@ -126,29 +128,22 @@ public class Phonebook {
 			return false;
 		}
 	}
-	/**
-	public boolean updatePhone(String id, Person person)
+	// Обновление телефона
+	
+	public boolean updatePhone(String id,String id_phone, String number)
 	{
-		Integer id_filtered = Integer.parseInt(person.getId());
-		Integer id_phone_filtered = Integer.parseInt(person.getId());		
+		Integer id_filtered = Integer.parseInt(id);
+		Integer id_phone_filtered = Integer.parseInt(id_phone);		
 		String query = "";
-
-		
-		
-			query = "UPDATE `phone` SET `name` = '" + person.getName() + "', `surname` = '" + person.getSurname() + "', `middlename` = '" + person.getMiddlename() + "' WHERE `id` = " + id_filtered;
-		}
-		else
-		{
-			query = "UPDATE `person` SET `name` = '" + person.getName() + "', `surname` = '" + person.getSurname() + "' WHERE `id` = " + id_filtered;
-		}
+			query = "UPDATE `phone` SET `owner` = '" + id_filtered + "', `number` = '" + number + "' WHERE `id` = " + id_phone_filtered;		
 
 		Integer affected_rows = this.db.changeDBData(query);
 		
 		// Если обновление прошло успешно...
 		if (affected_rows > 0)
 		{
-			// Обновляем запись о человеке в общем списке.
-			this.persons.put(person.getId(), person);
+			// Обновляем запись о измененном телефоне в общем списке.
+			this.persons.get(id).getPhones().put(id_phone, number);
 			return true;
 		}
 		else
@@ -156,8 +151,7 @@ public class Phonebook {
 			return false;
 		}
 	}
-
-	*/
+	
 	// Удаление записи о человеке.
 	public boolean deletePerson(String id)
 	{

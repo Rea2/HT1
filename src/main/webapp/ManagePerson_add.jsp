@@ -19,12 +19,7 @@
 	if (request.getAttribute("jsp_parameters") != null)
 	{
 		jsp_parameters = (HashMap<String,String>)request.getAttribute("jsp_parameters");
-	}
-
-	if (request.getAttribute("person") != null)
-	{
-		person=(Person)request.getAttribute("person");
-	}
+	}	
 	
 	error_message = jsp_parameters.get("error_message");
 %>

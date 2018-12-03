@@ -16,7 +16,6 @@
 	HashMap<String,String> jsp_parameters = new HashMap<String,String>();
 	Person person = new Person();
 	String error_message = "";	
-	
 
 	if (request.getAttribute("jsp_parameters") != null)
 	{
@@ -27,6 +26,7 @@
 	{
 		person=(Person)request.getAttribute("person");
 	}
+	
 	
 	error_message = jsp_parameters.get("error_message");
 %>

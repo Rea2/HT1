@@ -88,7 +88,7 @@ public class Person {
 	    	return false;
 		}
 	    
-	    Matcher matcher = Pattern.compile("[\\d+-#]{2,50}").matcher(phone);
+	    Matcher matcher = Pattern.compile("[\\d+-]{2,50}").matcher(phone);
 	    return matcher.matches(); 
 	}
 	

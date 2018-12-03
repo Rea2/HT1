@@ -15,6 +15,7 @@
 	HashMap<String,String> jsp_parameters = new HashMap<String,String>();
 	Person person = new Person();
 	String  id_phone = "";
+	String number = "";
 	String error_message = "";	
 
 	if (request.getAttribute("jsp_parameters") != null)
@@ -30,7 +31,10 @@
 	if (request.getAttribute("id_phone") != null)
 	{
 		id_phone = (String)request.getAttribute("id_phone");
+		number = person.getPhones().get(id_phone);
 	}
+System.out.println("id_phone =" + id_phone);
+System.out.println("number =" + person.getPhones().get(id_phone));
 	
 	error_message = jsp_parameters.get("error_message");
 %>
@@ -57,12 +61,12 @@
     <tr>
         <td>Номер:</td>
         <td> 
-        <input type="text" name="phone" value="<%person.getPhones().get(id_phone);%>"/>              	       
+        <input type="text" name="phone" value="<%=number%>"/>              	       
          </td>
    </tr>   
     <tr>
         <td colspan="2" align="center">
-         <input type="submit" name="<%=jsp_parameters.get("next_phone_action")%>" value="<%=jsp_parameters.get("next_action_label")%>" />
+         <input type="submit" name="<%=jsp_parameters.get("next_action")%>" value="<%=jsp_parameters.get("next_action_label")%>" />
          <br />
          <a href="<%=request.getContextPath()%>/">Вернуться к списку</a>
         </td>
