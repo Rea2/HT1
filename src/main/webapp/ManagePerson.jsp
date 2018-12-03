@@ -60,19 +60,22 @@
         <td><input type="text" name="middlename" value="<%=person.getMiddlename()%>"/></td>
     </tr>
     <tr>
-        <td>Телефоны:</td>
-        <td>
-        <% 
-          for(Map.Entry<String, String> phone : person.getPhones().entrySet())
-           {
-         	out.write(phone.getValue());%> 
-         	<a href="<%=request.getContextPath()%>/?action=edit_phone&id=<%=person.getId()%>&id_phone=<%=phone.getKey()%>">Редактировать</a>
-         	<a href="<%=request.getContextPath()%>/?action=delete_phone&id=<%=person.getId()%>&id_phone=<%=phone.getKey()%>">Удалить</a>     	
-    
-         	<br />
-         <%}; %>        
-            <a href="<%=request.getContextPath()%>/?action=add_phone&id=<%=person.getId()%>">Добавить</a>   
+        <%if (request.getAttribute("id") ==null)
+        	{out.write("<td>Телефоны:<//td>");%>
+	        <td>
+	        <% 
+	          for(Map.Entry<String, String> phone : person.getPhones().entrySet())
+	           {
+	         	out.write(phone.getValue());%> 
+	         	<a href="<%=request.getContextPath()%>/?action=edit_phone&id=<%=person.getId()%>&id_phone=<%=phone.getKey()%>">Редактировать</a>
+	         	<a href="<%=request.getContextPath()%>/?action=delete_phone&id=<%=person.getId()%>&id_phone=<%=phone.getKey()%>">Удалить</a>     	
+	    
+	         	<br />
+	         <%}%> 
+	              
+            <a href="<%=request.getContextPath()%>/?action=add_phone&id=<%=person.getId()%>">Добавить</a>               
          </td>
+          <% }; %> 
    </tr>   
     <tr>
         <td colspan="2" align="center">
