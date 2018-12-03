@@ -33,8 +33,12 @@
 		id_phone = (String)request.getAttribute("id_phone");
 		number = person.getPhones().get(id_phone);
 	}
-System.out.println("id_phone =" + id_phone);
-System.out.println("number =" + person.getPhones().get(id_phone));
+	
+	if (request.getAttribute("number") != null)
+	{		
+		number = (String)request.getAttribute("number");
+	}
+	
 	
 	error_message = jsp_parameters.get("error_message");
 %>
@@ -68,7 +72,7 @@ System.out.println("number =" + person.getPhones().get(id_phone));
         <td colspan="2" align="center">
          <input type="submit" name="<%=jsp_parameters.get("next_action")%>" value="<%=jsp_parameters.get("next_action_label")%>" />
          <br />
-         <a href="<%=request.getContextPath()%>/">Вернуться к списку</a>
+         <a href="<%=request.getContextPath()%>/">Вернуться к данным о человеке</a>
         </td>
     </tr> 
  </table>

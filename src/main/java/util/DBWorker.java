@@ -42,7 +42,7 @@ public class DBWorker {
 		Connection connect;
 		try
 		{
-			Class.forName("com.mysql.jdbc.Driver").newInstance();
+			Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
 			connect = DriverManager.getConnection("jdbc:mysql://localhost/phonebook?user=root&password=12345&useUnicode=true&characterEncoding=UTF-8&characterSetResults=utf8"
 					+ "&connectionCollation=utf8_general_ci&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Europe/Moscow");
 			statement = connect.createStatement();

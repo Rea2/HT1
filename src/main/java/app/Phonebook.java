@@ -71,10 +71,9 @@ public class Phonebook {
 		}
 	}
 	
-	// Добавление в запись о человека новый номер телефона.
+	// Добавление в запись о человека нового номера телефона.
 	public boolean addPhone(Person person, String phone )
 	{
-System.out.println("Adding phone is " + phone);		
 		ResultSet db_result;
 		String query;	
 		if (!persons.containsValue(person)) return false;		
@@ -85,10 +84,9 @@ System.out.println("Adding phone is " + phone);
 		// Если добавление прошло успешно...
 		if (affected_rows > 0)
 		{
-System.out.println(this.db.getLastInsertId().toString());
-			// Добавляем запись о человеке в общий список.						
-			person.getPhones().put(this.db.getLastInsertId().toString(), phone);		
-			
+
+			// Добавляем новый телефон в отображение телефонов человека.						
+			person.getPhones().put(this.db.getLastInsertId().toString(), phone);					
 			return true;
 		}
 		else
@@ -179,6 +177,7 @@ System.out.println(this.db.getLastInsertId().toString());
 		}
 	}
 	
+	// Удаление телефона у человека .
 	public boolean deletePhone(String id, String id_phone)
 	{
 		if ((id != null)&&(!id.equals("null"))&& (id_phone != null)&&(!id_phone.equals("null")))
@@ -191,7 +190,7 @@ System.out.println(this.db.getLastInsertId().toString());
 			// Если удаление прошло успешно...
 			if (affected_rows > 0)
 			{
-				// Удаляем запись о человеке из общего списка.
+				// Удаляем запись о телефоне из записи человека.
 				this.persons.get(id).getPhones().remove(id_phone);
 				return true;
 			}
@@ -205,8 +204,6 @@ System.out.println(this.db.getLastInsertId().toString());
 			return false;
 		}
 	}
-	
-	
 	
 
 	// +++++++++++++++++++++++++++++++++++++++++

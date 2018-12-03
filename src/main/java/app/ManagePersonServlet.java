@@ -74,7 +74,7 @@ public class ManagePersonServlet extends HttpServlet {
 		  {
 		  return error_message;
 		  }	   		    
-	    Matcher matcher = Pattern.compile("[0-9+-]{2,50}").matcher(phone);
+	    Matcher matcher = Pattern.compile("[#0-9+-]{2,50}").matcher(phone);
 	    if(matcher.matches()) 
 	    {
 	    return "";
@@ -441,8 +441,7 @@ public class ManagePersonServlet extends HttpServlet {
 			if (edit_phone_go != null)
 				{
 					// Получение записи и её обновление на основе данных из формы.
-					Person updatable_person = this.phonebook.getPerson(request.getParameter("id")); 
-					String id_number = request.getParameter("id_number");
+					Person updatable_person = this.phonebook.getPerson(request.getParameter("id")); 				
 					String edited_number = request.getParameter("phone");					
 		
 
@@ -489,6 +488,8 @@ public class ManagePersonServlet extends HttpServlet {
 		    			// Установка параметров JSP.
 		    			request.setAttribute("person", updatable_person);
 		    			request.setAttribute("jsp_parameters", jsp_parameters);
+		    			request.setAttribute("phone", edited_number);
+		    			request.setAttribute("id_phone", id_phone);
 		    			
 		    			// Передача запроса в JSP.
 		    			dispatcher_for_phoneeditor.forward(request, response);    			
