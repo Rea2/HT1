@@ -72,7 +72,7 @@
         <td colspan="2" align="center">
          <input type="submit" name="<%=jsp_parameters.get("next_action")%>" value="<%=jsp_parameters.get("next_action_label")%>" />
          <br />
-         <a href="<%=request.getContextPath()%>/">Вернуться к данным о человеке</a>
+         <a href="<%=request.getContextPath()%>/?action=edit&id=<%=person.getId()%>">Вернуться к данным о человеке</a>
         </td>
     </tr> 
  </table>

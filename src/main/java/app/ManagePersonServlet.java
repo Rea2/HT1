@@ -5,15 +5,11 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-
 
 public class ManagePersonServlet extends HttpServlet {
 	
@@ -24,24 +20,16 @@ public class ManagePersonServlet extends HttpServlet {
 	private Phonebook phonebook;
        
     public ManagePersonServlet()
-    {
-        // Вызов родительского конструктора.
-    	super();
-		
+    {	
     	// Создание экземпляра телефонной книги.
         try
 		{
 			this.phonebook = Phonebook.getInstance();
 		}
-		catch (ClassNotFoundException e)
+		catch (ClassNotFoundException | SQLException e )
 		{
 			e.printStackTrace();
-		}
-		catch (SQLException e)
-		{
-			e.printStackTrace();
-		}        
-        
+		}	
     }
 
     // Валидация ФИО и генерация сообщения об ошибке в случае невалидных данных.

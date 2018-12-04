@@ -60,8 +60,9 @@
         <td><input type="text" name="middlename" value="<%=person.getMiddlename()%>"/></td>
     </tr>
     <tr>
-        <%if (request.getAttribute("id") ==null)
-        	{out.write("<td>Телефоны:<//td>");%>
+        <%if (jsp_parameters.get("current_action") != "add")
+        	{
+        	out.write("<td>Телефоны:<//td>");%>
 	        <td>
 	        <% 
 	          for(Map.Entry<String, String> phone : person.getPhones().entrySet())
