@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import util.DBWorker;
 
 public class Person {
@@ -63,7 +62,7 @@ public class Person {
 		this.surname = surname;
 		this.middlename = middlename;
 	}
-
+	
 	// Валидация частей ФИО. Для отчества можно передать второй параетр == true,
 	// тогда допускается пустое значение.
 	public boolean validateFMLNamePart(String fml_name_part, boolean empty_allowed)
@@ -79,8 +78,7 @@ public class Person {
 	    	return matcher.matches();
 	    }
 	    
-	}
-	
+	}	
 	
 	  // Валидация ФИО и генерация сообщения об ошибке в случае невалидных данных.
 	public String validatethisFMLName()
@@ -104,7 +102,7 @@ public class Person {
 		
 		return error_message;
     }
-	
+	  // Валидация номера телефона и генерация сообщения об ошибке в случае невалидных данных.
 	public static String validatePhoneNumber (String phone)
     {
 		String error_message = "Телефонный номер должен иметь  от 2 до 50 символов: цифры, и знаки +, -, #.<br />";
@@ -118,8 +116,7 @@ public class Person {
 	    return "";
 	    }
 	    else return error_message;    
-	 }
-	
+	}
 	
 	public String getPhonesToString() {
 		StringBuilder sb= new StringBuilder();

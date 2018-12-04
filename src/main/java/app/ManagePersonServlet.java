@@ -136,7 +136,6 @@ public class ManagePersonServlet extends HttpServlet {
        		case "edit_phone":
         			// Извлечение из телефонной книги информации о редактируемой записи.
         			Person person_with_editable_phone = this.phonebook.getPerson(id);
- 
         			
         			// Подготовка параметров для JSP.
         			setJspActionParameters("edit_phone","edit_phone_go","Сохранить");   
@@ -214,8 +213,7 @@ public class ManagePersonServlet extends HttpServlet {
 		String add_phone_go = request.getParameter("add_phone_go");
 		String edit_phone_go = request.getParameter("edit_phone_go");
 		String id = request.getParameter("id");
-		String id_phone = request.getParameter("id_phone");		
-		
+		String id_phone = request.getParameter("id_phone");				
 		
 		// Добавление записи.
 		if (add_go != null)
@@ -372,8 +370,7 @@ public class ManagePersonServlet extends HttpServlet {
 				{
 					// Получение записи и её обновление на основе данных из формы.
 					Person updatable_person = this.phonebook.getPerson(request.getParameter("id")); 				
-					String edited_number = request.getParameter("phone");					
-		
+					String edited_number = request.getParameter("phone");	
 
 					// Валидация телефона.
 					String error_message = Person.validatePhoneNumber(edited_number); 
@@ -417,13 +414,9 @@ public class ManagePersonServlet extends HttpServlet {
 		    			request.setAttribute("id_phone", id_phone);
 		    			
 		    			// Передача запроса в JSP.
-		    			dispatcher_for_phoneeditor.forward(request, response);    			
-		    			
-					}
-					
+		    			dispatcher_for_phoneeditor.forward(request, response);    					    			
+					}					
 					
 				}
-
-
-}
+		}
 }
