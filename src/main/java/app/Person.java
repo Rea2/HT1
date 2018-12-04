@@ -81,16 +81,44 @@ public class Person {
 	    
 	}
 	
-	public boolean validatePhone (String phone)
-	{
-	    if (phone == null) 
-	    {
-	    	return false;
+	
+	  // Валидация ФИО и генерация сообщения об ошибке в случае невалидных данных.
+	public String validatethisFMLName()
+    {
+		String error_message = "";
+		
+		if (!this.validateFMLNamePart(this.getName(), false))
+		{
+			error_message += "Имя должно быть строкой от 1 до 150 символов из букв, цифр, знаков подчёркивания и знаков минус.<br />";
 		}
-	    
-	    Matcher matcher = Pattern.compile("[\\d+-]{2,50}").matcher(phone);
-	    return matcher.matches(); 
-	}
+		
+		if (!this.validateFMLNamePart(this.getSurname(), false))
+		{
+			error_message += "Фамилия должна быть строкой от 1 до 150 символов из букв, цифр, знаков подчёркивания и знаков минус.<br />";
+		}
+		
+		if (!this.validateFMLNamePart(this.getMiddlename(), true))
+		{
+			error_message += "Отчество должно быть строкой от 0 до 150 символов из букв, цифр, знаков подчёркивания и знаков минус.<br />";
+		}
+		
+		return error_message;
+    }
+	
+	public static String validatePhoneNumber (String phone)
+    {
+		String error_message = "Телефонный номер должен иметь  от 2 до 50 символов: цифры, и знаки +, -, #.<br />";
+		  if (phone == null) 
+		  {
+		  return error_message;
+		  }	   		    
+	    Matcher matcher = Pattern.compile("[#0-9+-]{2,50}").matcher(phone);
+	    if(matcher.matches()) 
+	    {
+	    return "";
+	    }
+	    else return error_message;    
+	 }
 	
 	
 	public String getPhonesToString() {

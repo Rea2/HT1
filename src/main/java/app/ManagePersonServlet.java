@@ -3,8 +3,6 @@ package app;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -12,6 +10,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class ManagePersonServlet extends HttpServlet {
+	
+	private RequestDispatcher dispatcher_for_manager =  null; 	
+    private RequestDispatcher dispatcher_for_list = null;
+    private RequestDispatcher dispatcher_for_phoneeditor =  null;
+    private HashMap<String,String> jsp_parameters = null; 
 	
 	// Идентификатор для сериализации/десериализации.
 	private static final long serialVersionUID = 1L;
@@ -30,71 +33,48 @@ public class ManagePersonServlet extends HttpServlet {
 		{
 			e.printStackTrace();
 		}	
-    }
-
-    // Валидация ФИО и генерация сообщения об ошибке в случае невалидных данных.
-    private String validatePersonFMLName(Person person)
-    {
-		String error_message = "";
+    } 
+    
+    // Установка общих аттрибутов для запроса и создание диспетчеров для передачи управления на разные JSP
+    private void beforeDoMethod (HttpServletRequest req)
+            throws ServletException, IOException 
+    {    	
+	     // Обязательно ДО обращения к любому параметру нужно переключиться в UTF-8,
+	     // иначе русский язык при передаче GET/POST-параметрами превращается в "кракозябры".
+        req.setCharacterEncoding("UTF-8");
+        
+		// В JSP нам понадобится сама телефонная книга. Можно создать её экземпляр там,
+		// но с архитектурной точки зрения логичнее создать его в сервлете и передать в JSP.
+		req.setAttribute("phonebook", this.phonebook);
 		
-		if (!person.validateFMLNamePart(person.getName(), false))
-		{
-			error_message += "Имя должно быть строкой от 1 до 150 символов из букв, цифр, знаков подчёркивания и знаков минус.<br />";
-		}
+		// Хранилище параметров для передачи в JSP.
+		jsp_parameters = new HashMap<String,String>();
 		
-		if (!person.validateFMLNamePart(person.getSurname(), false))
-		{
-			error_message += "Фамилия должна быть строкой от 1 до 150 символов из букв, цифр, знаков подчёркивания и знаков минус.<br />";
-		}
-		
-		if (!person.validateFMLNamePart(person.getMiddlename(), true))
-		{
-			error_message += "Отчество должно быть строкой от 0 до 150 символов из букв, цифр, знаков подчёркивания и знаков минус.<br />";
-		}
-		
-		return error_message;
+		// Диспетчеры для передачи управления на разные JSP (разные представления (view)).
+				dispatcher_for_manager = req.getRequestDispatcher("/ManagePerson.jsp");	
+		        dispatcher_for_list = req.getRequestDispatcher("/List.jsp");
+		        dispatcher_for_phoneeditor = req.getRequestDispatcher("/PhoneEditor.jsp");  
     }
     
-    private String validatePhoneNumber (String phone)
+    // Установка параметров "current_action", "next_action", "next_action_label"  для передачи в  jsp файл
+    private void setJspActionParameters (String current_action, String next_action , String next_action_label)
     {
-		String error_message = "Телефонный номер должен иметь  от 2 до 50 символов: цифры, и знаки +, -, #.<br />";
-		  if (phone == null) 
-		  {
-		  return error_message;
-		  }	   		    
-	    Matcher matcher = Pattern.compile("[#0-9+-]{2,50}").matcher(phone);
-	    if(matcher.matches()) 
-	    {
-	    return "";
-	    }
-	    else return error_message;    
-	 }
+    	jsp_parameters.put("current_action", current_action);
+		jsp_parameters.put("next_action", next_action);
+		jsp_parameters.put("next_action_label", next_action_label);
+    }    
     
     // Реакция на GET-запросы.
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
-	{
-		// Обязательно ДО обращения к любому параметру нужно переключиться в UTF-8,
-		// иначе русский язык при передаче GET/POST-параметрами превращается в "кракозябры".
-		request.setCharacterEncoding("UTF-8");
-		
-		// В JSP нам понадобится сама телефонная книга. Можно создать её экземпляр там,
-		// но с архитектурной точки зрения логичнее создать его в сервлете и передать в JSP.
-		request.setAttribute("phonebook", this.phonebook);
-		
-		// Хранилище параметров для передачи в JSP.
-		HashMap<String,String> jsp_parameters = new HashMap<String,String>();
-
-		// Диспетчеры для передачи управления на разные JSP (разные представления (view)).
-		RequestDispatcher dispatcher_for_manager = request.getRequestDispatcher("/ManagePerson.jsp");	
-        RequestDispatcher dispatcher_for_list = request.getRequestDispatcher("/List.jsp");
-        RequestDispatcher dispatcher_for_phoneeditor = request.getRequestDispatcher("/PhoneEditor.jsp");
+	{  
+		 // Установка аттрибутов для запроса и создание диспетчеров
+		beforeDoMethod( request);
 
 		// Действие (action) и идентификатор записи (id) над которой выполняется это действие.
 		String action = request.getParameter("action");
 		String id = request.getParameter("id");
 		String id_phone = request.getParameter("id_phone");
-		
-		
+				
 		// Если идентификатор и действие не указаны, мы находимся в состоянии
 		// "просто показать список и больше ничего не делать".
         if ((action == null)&&(id == null)&&(id_phone == null))
@@ -113,9 +93,7 @@ public class ManagePersonServlet extends HttpServlet {
         			Person empty_person = new Person();
         			
         			// Подготовка параметров для JSP.
-        			jsp_parameters.put("current_action", "add");
-        			jsp_parameters.put("next_action", "add_go");
-        			jsp_parameters.put("next_action_label", "Добавить");
+        			setJspActionParameters("add","add_go","Добавить");       			
         			
         			// Установка параметров JSP.
         			request.setAttribute("person", empty_person);
@@ -129,9 +107,7 @@ public class ManagePersonServlet extends HttpServlet {
         			Person person = this.phonebook.getPerson(id);
         			
         			// Подготовка параметров для JSP.
-        			jsp_parameters.put("current_action", "add_phone");
-        			jsp_parameters.put("next_action", "add_phone_go");
-        			jsp_parameters.put("next_action_label", "Добавить");
+        			setJspActionParameters("add_phone","add_phone_go","Добавить"); 
         			
         			// Установка параметров JSP.
         			request.setAttribute("person", person);        
@@ -148,9 +124,7 @@ public class ManagePersonServlet extends HttpServlet {
         			Person editable_person = this.phonebook.getPerson(id);
         			
         			// Подготовка параметров для JSP.
-        			jsp_parameters.put("current_action", "edit");
-        			jsp_parameters.put("next_action", "edit_go");
-        			jsp_parameters.put("next_action_label", "Сохранить");
+        			setJspActionParameters("edit","edit_go","Сохранить");         	
 
         			// Установка параметров JSP.
         			request.setAttribute("person", editable_person);
@@ -165,11 +139,8 @@ public class ManagePersonServlet extends HttpServlet {
  
         			
         			// Подготовка параметров для JSP.
-         			jsp_parameters.put("current_action", "edit_phone");
-
-        			jsp_parameters.put("next_action", "edit_phone_go");
-        			jsp_parameters.put("next_action_label", "Сохранить");
-
+        			setJspActionParameters("edit_phone","edit_phone_go","Сохранить");   
+        			
         			// Установка параметров JSP.
         			request.setAttribute("id_phone", id_phone);
         			request.setAttribute("person", person_with_editable_phone);
@@ -219,9 +190,7 @@ public class ManagePersonServlet extends HttpServlet {
         			}
 
         			// Установка параметров JSP.
-        			jsp_parameters.put("current_action", "add_phone_go");
-    				jsp_parameters.put("next_action", "edit_go");
-    				jsp_parameters.put("next_action_label", "Сохранить");
+        			setJspActionParameters("add_phone_go", "edit_go", "Сохранить");
         			request.setAttribute("jsp_parameters", jsp_parameters);
         			request.setAttribute("person", phonebook.getPerson(id));
         			
@@ -236,23 +205,8 @@ public class ManagePersonServlet extends HttpServlet {
 	// Реакция на POST-запросы.
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
 	{
-		// Обязательно ДО обращения к любому параметру нужно переключиться в UTF-8,
-		// иначе русский язык при передаче GET/POST-параметрами превращается в "кракозябры".
-		request.setCharacterEncoding("UTF-8");
-
-		// В JSP нам понадобится сама телефонная книга. Можно создать её экземпляр там,
-		// но с архитектурной точки зрения логичнее создать его в сервлете и передать в JSP.
-		request.setAttribute("phonebook", this.phonebook);
-		
-		// Хранилище параметров для передачи в JSP.
-		HashMap<String,String> jsp_parameters = new HashMap<String,String>();
-
-		// Диспетчеры для передачи управления на разные JSP (разные представления (view)).
-		RequestDispatcher dispatcher_for_manager = request.getRequestDispatcher("/ManagePerson.jsp");		
-		RequestDispatcher dispatcher_for_list = request.getRequestDispatcher("/List.jsp");
-		RequestDispatcher dispatcher_for_phoneeditor = request.getRequestDispatcher("/PhoneEditor.jsp");
-
-		
+		 // Установка аттрибутов для запроса и создание диспетчеров
+		beforeDoMethod( request);
 		
 		// Действие (add_go, edit_go) и идентификатор записи (id) над которой выполняется это действие.
 		String add_go = request.getParameter("add_go");
@@ -260,9 +214,7 @@ public class ManagePersonServlet extends HttpServlet {
 		String add_phone_go = request.getParameter("add_phone_go");
 		String edit_phone_go = request.getParameter("edit_phone_go");
 		String id = request.getParameter("id");
-		String id_phone = request.getParameter("id_phone");
-	
-		
+		String id_phone = request.getParameter("id_phone");		
 		
 		
 		// Добавление записи.
@@ -272,7 +224,7 @@ public class ManagePersonServlet extends HttpServlet {
 			Person new_person = new Person(request.getParameter("name"), request.getParameter("surname"), request.getParameter("middlename"));
 
 			// Валидация ФИО.
-			String error_message = this.validatePersonFMLName(new_person); 
+			String error_message = new_person.validatethisFMLName(); 
 			
 			// Если данные верные, можно производить добавление.
 			if (error_message.equals(""))
@@ -301,9 +253,7 @@ public class ManagePersonServlet extends HttpServlet {
 			else
 			{
     			// Подготовка параметров для JSP.
-    			jsp_parameters.put("current_action", "add");
-    			jsp_parameters.put("next_action", "add_go");
-    			jsp_parameters.put("next_action_label", "Добавить");
+				setJspActionParameters("add", "add_go",  "Добавить");    			
     			jsp_parameters.put("error_message", error_message);
     			
     			// Установка параметров JSP.
@@ -321,7 +271,7 @@ public class ManagePersonServlet extends HttpServlet {
 			Person editable_person = this.phonebook.getPerson(id);
 				
 			// Валидация ФИО.
-			String error_message = this.validatePhoneNumber(request.getParameter("phone")); 	
+			String error_message = Person.validatePhoneNumber(request.getParameter("phone")); 	
 
 			// Если данные верные, можно производить добавление.
 			if (error_message.equals(""))
@@ -340,10 +290,7 @@ public class ManagePersonServlet extends HttpServlet {
 				}
 
 				// Установка параметров JSP.
-
-				jsp_parameters.put("current_action", "add_phone_go");
-				jsp_parameters.put("next_action", "edit_go");
-				jsp_parameters.put("next_action_label", "Сохранить");
+				setJspActionParameters( "add_phone_go", "edit_go",  "Сохранить");
 				request.setAttribute("person", editable_person);
 				request.setAttribute("jsp_parameters", jsp_parameters);
 				
@@ -355,9 +302,7 @@ public class ManagePersonServlet extends HttpServlet {
 			else
 			{
     			// Подготовка параметров для JSP.
-    			jsp_parameters.put("current_action", "add_phone");
-    			jsp_parameters.put("next_action", "add_phone_go");
-    			jsp_parameters.put("next_action_label", "Добавить");
+				setJspActionParameters( "add_phone", "add_phone_go", "Добавить");				
     			jsp_parameters.put("error_message", error_message);
     			
     			// Установка параметров JSP.
@@ -379,7 +324,7 @@ public class ManagePersonServlet extends HttpServlet {
 			updatable_person.setMiddlename(request.getParameter("middlename"));
 
 			// Валидация ФИО.
-			String error_message = this.validatePersonFMLName(updatable_person); 
+			String error_message = updatable_person.validatethisFMLName(); 
 			
 			// Если данные верные, можно производить добавление.
 			if (error_message.equals(""))
@@ -409,9 +354,7 @@ public class ManagePersonServlet extends HttpServlet {
 			{
 
     			// Подготовка параметров для JSP.
-    			jsp_parameters.put("current_action", "edit");
-    			jsp_parameters.put("next_action", "edit_go");
-    			jsp_parameters.put("next_action_label", "Сохранить");
+				setJspActionParameters( "edit", "edit_go", "Сохранить");	
     			jsp_parameters.put("error_message", error_message);
 
     			// Установка параметров JSP.
@@ -433,7 +376,7 @@ public class ManagePersonServlet extends HttpServlet {
 		
 
 					// Валидация телефона.
-					String error_message = this.validatePhoneNumber(edited_number); 
+					String error_message = Person.validatePhoneNumber(edited_number); 
 					
 					if (error_message.equals(""))
 					{					
@@ -451,11 +394,8 @@ public class ManagePersonServlet extends HttpServlet {
 							
 						}						
 
-						// Установка параметров JSP.	
-						jsp_parameters.put("current_action", "edit_phone_go");
-						jsp_parameters.put("next_action", "edit_go");
-						jsp_parameters.put("next_action_label", "Сохранить");	
-								
+						// Установка параметров JSP.
+						setJspActionParameters( "edit_phone_go", "edit_go", "Сохранить");								
 			   			request.setAttribute("person", updatable_person);	
 						request.setAttribute("jsp_parameters", jsp_parameters);
 			        
@@ -467,9 +407,7 @@ public class ManagePersonServlet extends HttpServlet {
 					{
 
 		    			// Подготовка параметров для JSP.
-		    			jsp_parameters.put("current_action", "edit_phone_go");
-		    			jsp_parameters.put("next_action", "edit_phone_go");
-		    			jsp_parameters.put("next_action_label", "Сохранить");
+						setJspActionParameters( "edit_phone_go", "edit_phone_go", "Сохранить");		
 		    			jsp_parameters.put("error_message", error_message);
 
 		    			// Установка параметров JSP.
